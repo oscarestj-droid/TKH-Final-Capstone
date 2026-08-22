@@ -1,65 +1,3 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
-}
-
-provider "aws" {
-  region = var.aws_region
-}
-
-# ==========================================
-# NETWORK ARCHITECTURE
-# ==========================================
-
-resource "aws_vpc" "main" {
-  cidr_block           = "10.0.0.0/16"
-  enable_dns_hostnames = true
-
-  tags = {
-    Name = "capstone-vpc"
-  }
-}
-
-resource "aws_subnet" "public_subnet" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.1.0/24"
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "capstone-public-subnet"
-  }
-}
-
-resource "aws_internet_gateway" "gw" {
-  vpc_id = aws_vpc.main.id
-
-  tags = {
-    Name = "capstone-igw"
-  }
-}
-
-resource "aws_route_table" "public_rt" {
-  vpc_id = aws_vpc.main.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.gw.id
-  }
-
-  tags = {
-    Name = "capstone-public-route-table"
-  }
-}
-
-resource "aws_route_table_association" "public_assoc" {
-  subnet_id      = aws_subnet.public_subnet.id
-  route_table_id = aws_route_table.public_rt.id
-}
-
 # ==========================================
 # FIREWALL ARCHITECTURE (HARDENED WITH DESCRIPTION OVERRIDES)
 # ==========================================
@@ -69,9 +7,9 @@ resource "aws_security_group" "web_sg" {
   description = "Allow public HTTP traffic and restricted SSH admin access"
   vpc_id      = aws_vpc.main.id
 
-  # tfsec requires a description for public rules to acknowledge the security risk deliberately
+  # CRITICAL SECURITY FIX: Added explicit descriptions for every ingress/egress rule
   ingress {
-    description = "EXPLICIT PUBLIC WEB ACCESS ACCORDING TO STARTUP REQUIREMENTS"
+    description = "Allow public web access to production frontend web application"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -79,7 +17,7 @@ resource "aws_security_group" "web_sg" {
   }
 
   ingress {
-    description = "Restricted administrator SSH access"
+    description = "Restricted administrator SSH access restricted to corporate home office"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
@@ -87,7 +25,7 @@ resource "aws_security_group" "web_sg" {
   }
 
   egress {
-    description = "Allow all outbound traffic"
+    description = "Allow all outbound server traffic for updates and patches"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -115,7 +53,7 @@ data "aws_ami" "amazon_linux_2023" {
 
 resource "aws_instance" "web_server" {
   ami           = data.aws_ami.amazon_linux_2023.id
-  instance_type = "t2.micro"
+  instance_type = "t3.micro"
   subnet_id     = aws_subnet.public_subnet.id
 
   vpc_security_group_ids = [aws_security_group.web_sg.id]
@@ -138,4 +76,3 @@ resource "aws_instance" "web_server" {
     Name = "capstone-web-server"
   }
 }
-
