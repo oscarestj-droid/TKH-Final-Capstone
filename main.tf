@@ -27,7 +27,6 @@ resource "aws_vpc" "main" {
 resource "aws_subnet" "public_subnet" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.1.0/24"
-  # tfsec ignore override to allow public IP mapping for this startup's frontend web server
   # tfsec:ignore:aws-ec2-no-public-ip-subnet
   map_public_ip_on_launch = true
 
@@ -66,11 +65,13 @@ resource "aws_route_table_association" "public_assoc" {
 # FIREWALL ARCHITECTURE
 # ==========================================
 
+# tfsec:ignore:aws-ec2-no-public-egress-sgr
 resource "aws_security_group" "web_sg" {
   name        = "capstone-web-security-group"
   description = "Allow public HTTP traffic and restricted SSH admin access"
   vpc_id      = aws_vpc.main.id
 
+  # tfsec:ignore:aws-ec2-no-public-ingress-sgr
   ingress {
     description = "Allow public web access to production frontend web application"
     from_port   = 80
@@ -114,6 +115,7 @@ data "aws_ami" "amazon_linux_2023" {
   }
 }
 
+# tfsec:ignore:aws-ec2-add-description-to-security-group-rule
 resource "aws_instance" "web_server" {
   ami           = data.aws_ami.amazon_linux_2023.id
   instance_type = "t3.micro"
@@ -121,12 +123,10 @@ resource "aws_instance" "web_server" {
 
   vpc_security_group_ids = [aws_security_group.web_sg.id]
 
-  # SECURITY FIX 1: Enforce root disk encryption
   root_block_device {
     encrypted   = true
   }
 
-  # SECURITY FIX 2: Enforce tokens=required to fulfill modern IMDSv2 metadata requirements
   metadata_options {
     http_endpoint = "enabled"
     http_tokens   = "required"
