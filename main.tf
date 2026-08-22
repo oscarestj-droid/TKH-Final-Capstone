@@ -27,6 +27,8 @@ resource "aws_vpc" "main" {
 resource "aws_subnet" "public_subnet" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.1.0/24"
+  # tfsec ignore override to allow public IP mapping for this startup's frontend web server
+  # tfsec:ignore:aws-ec2-no-public-ip-subnet
   map_public_ip_on_launch = true
 
   tags = {
@@ -119,8 +121,15 @@ resource "aws_instance" "web_server" {
 
   vpc_security_group_ids = [aws_security_group.web_sg.id]
 
+  # SECURITY FIX 1: Enforce root disk encryption
   root_block_device {
     encrypted   = true
+  }
+
+  # SECURITY FIX 2: Enforce tokens=required to fulfill modern IMDSv2 metadata requirements
+  metadata_options {
+    http_endpoint = "enabled"
+    http_tokens   = "required"
   }
 
   user_data = <<-EOF
@@ -136,3 +145,4 @@ resource "aws_instance" "web_server" {
     Name = "capstone-web-server"
   }
 }
+
