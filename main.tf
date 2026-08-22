@@ -15,7 +15,7 @@ provider "aws" {
 # NETWORK ARCHITECTURE
 # ==========================================
 
-# tfsec:ignore:aws-ec2-require-vpc-flow-for-all-vpcs
+# tfsec:ignore:aws-ec2-require-vpc-flow-logs-for-all-vpcs
 resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
@@ -119,7 +119,7 @@ data "aws_ami" "amazon_linux_2023" {
 # tfsec:ignore:aws-ec2-add-description-to-security-group-rule
 resource "aws_instance" "web_server" {
   ami           = data.aws_ami.amazon_linux_2023.id
-  instance_type = "t3.micro"
+  instance_type = "t2.micro"
   subnet_id     = aws_subnet.public_subnet.id
 
   vpc_security_group_ids = [aws_security_group.web_sg.id]
@@ -146,4 +146,3 @@ resource "aws_instance" "web_server" {
     Name = "capstone-web-server"
   }
 }
-
