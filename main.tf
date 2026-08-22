@@ -1,5 +1,67 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = var.aws_region
+}
+
 # ==========================================
-# FIREWALL ARCHITECTURE (HARDENED WITH DESCRIPTION OVERRIDES)
+# NETWORK ARCHITECTURE
+# ==========================================
+
+resource "aws_vpc" "main" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_hostnames = true
+
+  tags = {
+    Name = "capstone-vpc"
+  }
+}
+
+resource "aws_subnet" "public_subnet" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.1.0/24"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "capstone-public-subnet"
+  }
+}
+
+resource "aws_internet_gateway" "gw" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "capstone-igw"
+  }
+}
+
+resource "aws_route_table" "public_rt" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.gw.id
+  }
+
+  tags = {
+    Name = "capstone-public-route-table"
+  }
+}
+
+resource "aws_route_table_association" "public_assoc" {
+  subnet_id      = aws_subnet.public_subnet.id
+  route_table_id = aws_route_table.public_rt.id
+}
+
+# ==========================================
+# FIREWALL ARCHITECTURE
 # ==========================================
 
 resource "aws_security_group" "web_sg" {
@@ -7,7 +69,6 @@ resource "aws_security_group" "web_sg" {
   description = "Allow public HTTP traffic and restricted SSH admin access"
   vpc_id      = aws_vpc.main.id
 
-  # CRITICAL SECURITY FIX: Added explicit descriptions for every ingress/egress rule
   ingress {
     description = "Allow public web access to production frontend web application"
     from_port   = 80
@@ -38,7 +99,7 @@ resource "aws_security_group" "web_sg" {
 }
 
 # ==========================================
-# SERVER ARCHITECTURE (SECURED WITH DISK ENCRYPTION)
+# SERVER ARCHITECTURE
 # ==========================================
 
 data "aws_ami" "amazon_linux_2023" {
@@ -58,7 +119,6 @@ resource "aws_instance" "web_server" {
 
   vpc_security_group_ids = [aws_security_group.web_sg.id]
 
-  # CRITICAL SECURITY FIX: Enforce root volume encryption so the SAST scanner passes
   root_block_device {
     encrypted   = true
   }
