@@ -3,7 +3,7 @@
 
 ## 🔗 Professional Connections
 *   **LinkedIn Profile:** https://www.linkedin.com/in/oscarestudillo/
-*   **Professional Resume:** [https://drive.google.com/drive/u/0/folders/1c_B6j2Kc0POBY6_73LxbmKcq506dIBsM]
+*   **Professional Resume:** [https://drive.google.com/file/d/1tn1aJWnyQzxhd3SXaOk5zrWQ9Uf4mY6v/view?usp=sharing]
 
 ---
 
