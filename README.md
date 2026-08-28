@@ -1,14 +1,29 @@
-# Secure Automated Cloud Web Stack: DevSecOps Infrastructure
+# Secu# Secure Automated Cloud Web Architecture
+**Engineered by Oscar Estudillo**
 
-This project designs and launches a secure, production-ready web application infrastructure inside Amazon Web Services using Infrastructure as Code (IaC). It builds an automated network perimeter, deploys a self-bootstrapping web server, and uses a DevSecOps pipeline (Tfse) to scan the blueprints for security flaws before code changes can go live.
+## 🔗 Professional Connections
+*   **LinkedIn Profile:** https://www.linkedin.com/in/oscarestudillo/
+*   **Professional Resume:** [https://drive.google.com/drive/u/0/folders/1c_B6j2Kc0POBY6_73LxbmKcq506dIBsM]
 
-## Technologies Used
-* **AWS (Amazon Web Services):** The underlying cloud platform housing our virtual networks and web servers.
-* **Terraform (HCL):** The blueprint language used to declare, version, and manage our cloud assets as text code.
-* **GitHub Actions:** The automation engine that automatically runs validation checks on every code push.
-* **tfsec (Static Application Security Testing):** The security inspector that scans our code to stop vulnerabilities from deploying.
+---
 
-## Architecture & Security Breakdown
-* **Virtual Private Cloud (VPC) & Subnets:** The entire environment is isolated in a private network container, with public routing explicitly defined through an Internet Gateway.
-* **Firewall Hardening:** Network Security Groups act as stateful firewalls. They allow global public traffic to view the web application on Port 80, but strictly restrict administrative SSH access on Port 22 exclusively to a single authorized home IP address.
-* **Data & Platform Integrity:** The underlying virtual server is hardened with full storage root-disk encryption to prevent physical theft and enforces Metadata Service Version 2 (IMDSv2) tokens to defend against cloud-native spoofing attacks.
+## 🎯 What This Project Does
+This project builds a fully automated, secure cloud network environment on Amazon Web Services (AWS) using code instead of manual pointing and clicking. It launches a functional web application server inside a hardened digital perimeter and automatically runs security scans on the blueprint code to catch and fix human errors before the site ever goes live.
+
+## 🛠️ What I Did (How It Works)
+
+### 1. Automated Infrastructure (Terraform)
+*   **Built the Network Core:** Wrote code to provision an isolated Virtual Private Cloud (VPC) network, public subnets for hosting, and an Internet Gateway to guide web traffic safely.
+*   **Hardened the Perimeter:** Deployed stateful cloud firewalls (Security Groups) configured to allow global access for public web visitors (Port 80) while locking down administrative controls (Port 22 SSH) exclusively to my specific authorized home IP address.
+*   **Provisioned Self-Bootstrapping Compute:** Configured a virtual Linux server that automatically updates, installs Apache, and deploys our custom "Titan FinTech" application landing page the exact second it turns on.
+*   **Enforced Data Protection:** Encrypted the server's hard drive at the root block level and activated modern metadata validation protocols (IMDSv2) to block advanced cloud hacking strategies.
+
+### 2. DevSecOps Automation (GitHub Actions)
+*   **Engineered the Quality Gate:** Built an automated code testing assembly line that scans files on every push.
+*   **Integrated Security Checks:** Leveraged a security analysis tool (`tfsec`) to inspect my architecture rules. The scanner is strictly configured to break the automated pipeline build if any engineer tries to push insecure settings, acting as a mandatory safety filter.
+
+## 🧰 Technologies & Languages Used
+*   **Cloud Infrastructure:** Amazon Web Services (AWS - VPC, Subnets, EC2, Cloud Firewalls)
+*   **Infrastructure as Code:** Terraform (HashiCorp Configuration Language - HCL)
+*   **DevSecOps Pipeline:** GitHub Actions & tfsec static code scanner
+*   **System Admin & Code:** Linux Bash Scripting, HTML
